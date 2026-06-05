@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ApexTiers | Rankings</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800&family=VT323&display=swap');
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #030717;
+            color: #f8fafc;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.08) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(29, 78, 216, 0.08) 0px, transparent 50%),
+                linear-gradient(to right, rgba(255, 255, 255, 0.01) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.01) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 32px 32px, 32px 32px;
+        }
+        
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #070d1e; }
+        ::-webkit-scrollbar-thumb { background: #1e294b; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #2563eb; }
+
+        .cyber-glow {
+            box-shadow: 0 0 25px -5px rgba(29, 78, 216, 0.3), 0 0 15px -5px rgba(59, 130, 246, 0.2);
+        }
+        .card-glow:hover {
+            box-shadow: 0 10px 30px -10px rgba(59, 130, 246, 0.2);
+        }
+    </style>
+</head>
+<body class="min-h-screen selection:bg-blue-600/30 selection:text-blue-200 pb-16">
+
+    <!-- Header / Navbar -->
+    <header class="max-w-[1352px] h-16 rounded-2xl bg-[#070d1e]/80 backdrop-blur-xl mx-auto mt-6 border border-blue-900/40 shadow-2xl sticky top-4 z-50 px-6 flex items-center justify-between gap-4 cyber-glow">
+        <div class="flex items-center space-x-3">
+            <div class="h-9 w-9 rounded-xl bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-800 flex items-center justify-center shadow-lg shadow-blue-500/30">
+                <i class="fa-solid fa-layer-group text-white text-xs"></i>
+            </div>
+            <div>
+                <a href="#" class="text-xl font-black tracking-wider text-white uppercase font-sans hover:opacity-90 transition">
+                    Apex<span class="text-blue-500 relative inline-block drop-shadow-[0_0_10px_rgba(59,130,246,0.6)]">Tiers</span>
+                </a>
+            </div>
+        </div>
+
+        <ul class="hidden md:flex items-center space-x-2">
+            <li><a href="#" class="px-4 py-2 text-sm font-medium text-gray-400 hover:text-white rounded-xl hover:bg-blue-950/30 transition flex items-center gap-2"><i class="fa-solid fa-house text-xs"></i> Home</a></li>
+            <li><span class="px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-blue-950/80 to-blue-900/20 rounded-xl flex items-center gap-2 border border-blue-800/40 shadow-sm"><i class="fa-solid fa-chart-simple text-xs text-blue-500"></i> Rankings</span></li>
+            <li><a href="https://discord.gg/dEQu9MM4w" target="_blank" class="px-4 py-2 text-sm font-medium text-gray-400 hover:text-white rounded-xl hover:bg-blue-950/30 transition flex items-center gap-2"><i class="fa-brands fa-discord text-xs text-blue-400"></i> Discord</a></li>
+        </ul>
+
+        <div class="flex items-center gap-3">
+            <div class="relative bg-[#040814] border border-blue-950 focus-within:border-blue-500/50 rounded-full px-4 py-1.5 flex items-center max-w-44 sm:max-w-56 transition-all shadow-inner">
+                <i class="fa-solid fa-magnifying-glass text-gray-500 text-xs mr-2.5"></i>
+                <input type="text" id="player-search" oninput="renderLeaderboard()" placeholder="Search Minecraft Username..." class="bg-transparent text-xs text-white focus:outline-none placeholder-gray-600 w-full">
+            </div>
+            <button onclick="toggleConsole()" class="size-9 bg-[#0b132b] hover:bg-blue-600/10 hover:text-blue-400 text-gray-300 border border-blue-900/60 hover:border-blue-500/30 rounded-xl flex items-center justify-center text-xs transition cursor-pointer shadow-md" title="Admin Control Center">
+                <i class="fa-solid fa-terminal"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Leaderboard Block -->
+    <main class="w-full max-w-[1352px] mx-auto mt-20 px-4">
+        <div class="w-full bg-[#070d1e]/60 backdrop-blur-xl border border-blue-950/60 rounded-2xl p-6 relative shadow-2xl">
+            
+            <!-- Category Tabs Navigation -->
+            <section class="absolute bottom-full left-0 flex gap-1.5 max-w-full overflow-x-auto pb-2" id="gamemode-tab-bar">
+            </section>
+
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-blue-950/60">
+                <div>
+                    <h2 class="text-xl font-bold tracking-tight text-white flex items-center gap-2" id="current-discipline-title">
+                        Loading Cloud Database Indexes...
+                    </h2>
+                    <p class="text-xs text-gray-400 mt-0.5">Verified global real-time tracking analytics and performance tier distributions.</p>
+                </div>
+                <div id="sync-indicator" class="text-[11px] font-mono bg-blue-950/50 text-blue-400 border border-blue-900/40 px-3 py-1 rounded-full flex items-center gap-1.5">
+                    <i class="fa-solid fa-circle-notch fa-spin text-[8px]"></i> Synchronizing
+                </div>
+            </div>
+
+            <div class="w-full grid grid-cols-12 gap-2 font-bold uppercase px-5 text-[11px] text-gray-500 mb-4 tracking-wider">
+                <div class="col-span-1">#</div>
+                <div class="col-span-5 md:col-span-4">Minecraft Username</div>
+                <div class="col-span-3 text-center hidden md:block">Region</div>
+                <div class="col-span-6 md:col-span-4 text-right md:text-center">Active Tiers Matrix</div>
+            </div>
+
+            <div id="leaderboard-rows-wrapper" class="space-y-2.5">
+            </div>
+        </div>
+    </main>
+
+    <!-- Admin Console Dashboard Overlay -->
+    <div id="admin-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-[#070d1e] border border-blue-900/60 w-full max-w-lg rounded-2xl overflow-hidden shadow-2xl transition-all">
+            <div class="p-4 border-b border-blue-950/60 flex justify-between items-center bg-[#0b132b]">
+                <div class="flex items-center space-x-2 text-blue-500">
+                    <i class="fa-solid fa-terminal text-xs drop-shadow-[0_0_4px_rgba(59,130,246,0.5)]"></i>
+                    <h2 class="text-xs font-bold uppercase tracking-widest text-white">ApexTiers Configuration Matrix</h2>
+                </div>
+                <button onclick="toggleConsole()" class="text-gray-400 hover:text-white cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="p-6 space-y-4 max-h-[85vh] overflow-y-auto">
+                <div id="console-auth-section">
+                    <p class="text-xs text-gray-400 mb-2 font-medium">Provide administrative token key (Default is <code class="text-blue-400">admin123</code>):</p>
+                    <input type="password" id="console-passkey" placeholder="Enter security access token..." class="w-full bg-[#040814] border border-blue-950 focus:border-blue-500/50 focus:outline-none rounded-xl px-4 py-2.5 text-xs text-white transition shadow-inner">
+                    <button onclick="authenticateConsole()" class="w-full mt-3 bg-blue-600 hover:bg-blue-500 text-white font-bold uppercase tracking-wider py-2.5 rounded-xl text-xs transition cursor-pointer shadow-lg shadow-blue-600/20">Verify Access Token</button>
+                </div>
+
+                <div id="console-controls-section" class="hidden space-y-4">
+                    <div class="flex border-b border-blue-950 text-xs font-bold uppercase tracking-wider">
+                        <button id="tab-edit-mode" onclick="switchAdminSubTab('edit')" class="px-4 py-2 border-b-2 border-blue-500 text-white">Override Data</button>
+                        <button id="tab-add-mode" onclick="switchAdminSubTab('add')" class="px-4 py-2 border-b-2 border-transparent text-gray-500 hover:text-gray-300">Add New Player</button>
+                    </div>
+
+                    <div id="admin-sub-edit" class="space-y-4">
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5">Target Player Key Profile</label>
+                            <select id="admin-player-select" class="w-full bg-[#040814] border border-blue-950 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500/50">
+                                <option value="">No Active Matrix Profiles Loaded</option>
+                            </select>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5">Combat Category Module</label>
+                                <select id="admin-discipline-select" onchange="loadAdminSelectProfile()" class="w-full bg-[#040814] border border-blue-950 rounded-xl px-3 py-2 text-xs text-white focus:outline-none">
+                                    <option value="sword">Sword Combat</option>
+                                    <option value="nethop">Netherite OP</option>
+                                    <option value="smp">SMP Playstyle</option>
+                                    <option value="vanilla">Vanilla Tier</option>
+                                    <option value="pot">Pot PvP</option>
+                                    <option value="axe">Axe Battle</option>
+                                    <option value="mace">Mace Combat</option>
+                                    <option value="diasmp">Dia-SMP Tier</option>
+                                    <option value="uhc">UHC Scenarios</option>
+                                    <option value="lifesteal">Lifesteal Tier</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5">Tier Assignment Code</label>
+                                <select id="admin-tier-select" onchange="updateScorePreview('edit')" class="w-full bg-[#040814] border border-blue-950 rounded-xl px-3 py-2 text-xs text-white focus:outline-none">
+                                    <option value="HT1">HT1</option><option value="LT1">LT1</option>
+                                    <option value="HT2">HT2</option><option value="LT2">LT2</option>
+                                    <option value="HT3">HT3</option><option value="LT3">LT3</option>
+                                    <option value="HT4">HT4</option><option value="LT4">LT4</option>
+                                    <option value="HT5">HT5</option><option value="LT5">LT5</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5">Competitive Score (Auto)</label>
+                                <input type="number" id="admin-player-score" class="w-full bg-[#081129] border border-blue-950 rounded-xl px-3 py-2 text-xs text-blue-400 font-bold focus:outline-none" readonly>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5">Assigned Region</label>
+                                <select id="admin-player-region" class="w-full bg-[#040814] border border-blue-950 rounded-xl px-3 py-2 text-xs text-white focus:outline-none">
+                                    <option value="NA">NA</option>
+                                    <option value="EU">EU</option>
+                                    <option value="AS">AS</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-3 pt-2">
+                            <button onclick="updatePlayerTierData()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold uppercase tracking-wider py-2.5 rounded-xl text-xs transition cursor-pointer shadow-md">
+                                <i class="fa-solid fa-arrows-rotate mr-1"></i> Override & Sync
+                            </button>
+                            <button onclick="deletePlayerProfile()" class="bg-slate-800 hover:bg-blue-950 text-gray-400 hover:text-blue-400 border border-slate-700 hover:border-blue-900 px-4 rounded-xl text-xs transition cursor-pointer" title="Delete Profile">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="admin-sub-add" class="space-y-4 hidden">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5">Minecraft Username</label>
+                                <input type="text" id="add-player-name" placeholder="e.g. PlayerName" class="w-full bg-[#040814] border border-blue-950 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500/50">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5">Rating Title</label>
+                                <input type="text" id="add-player-rating" placeholder="e.g. Challenger" class="w-full bg-[#040814] border border-blue-950 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500/50">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5">Region</label>
+                                <select id="add-player-region" class="w-full bg-[#040814] border border-blue-950 rounded-xl px-3 py-2 text-xs text-white focus:outline-none">
+                                    <option value="NA">NA</option>
+                                    <option value="EU">EU</option>
+                                    <option value="AS">AS</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5">Score Preview</label>
+                                <input type="number" id="add-player-points-preview" class="w-full bg-[#081129] border border-blue-950 rounded-xl px-3 py-2 text-xs text-blue-400 font-bold focus:outline-none" readonly>
+                            </div>
+                        </div>
+
+                        <div class="p-4 bg-[#040814] rounded-xl border border-blue-950 space-y-2">
+                            <span class="block text-[10px] font-bold uppercase tracking-widest text-blue-500">Initial Tier Placement</span>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="block text-[9px] text-gray-400 mb-1">Category</label>
+                                    <select id="add-player-discipline" class="w-full bg-[#070d1e] border border-blue-950 rounded-lg px-2 py-1 text-[11px] text-white focus:outline-none">
+                                        <option value="sword">Sword Combat</option>
+                                        <option value="nethop">Netherite OP</option>
+                                        <option value="smp">SMP Playstyle</option>
+                                        <option value="vanilla">Vanilla Tier</option>
+                                        <option value="pot">Pot PvP</option>
+                                        <option value="axe">Axe Battle</option>
+                                        <option value="mace">Mace Combat</option>
+                                        <option value="diasmp">Dia-SMP Tier</option>
+                                        <option value="uhc">UHC Scenarios</option>
+                                        <option value="lifesteal">Lifesteal Tier</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-[9px] text-gray-400 mb-1">Tier</label>
+                                    <select id="add-player-tier" onchange="updateScorePreview('add')" class="w-full bg-[#070d1e] border border-blue-950 rounded-lg px-2 py-1 text-[11px] text-white focus:outline-none">
+                                        <option value="HT1">HT1</option><option value="LT1">LT1</option>
+                                        <option value="HT2">HT2</option><option value="LT2">LT2</option>
+                                        <option value="HT3">HT3</option><option value="LT3">LT3</option>
+                                        <option value="HT4">HT4</option><option value="LT4">LT4</option>
+                                        <option value="HT5">HT5</option><option value="LT5">LT5</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button onclick="addNewPlayerProfile()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold uppercase tracking-wider py-2.5 rounded-xl text-xs transition cursor-pointer shadow-md">
+                            <i class="fa-solid fa-cloud-arrow-up mr-1"></i> Register & Push to Cloud
+                        </button>
+                    </div>
+                </div>
+                <p id="console-feedback" class="text-center text-xs font-semibold hidden"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const STORAGE_API = "https://api.jsonbin.io/v3/b/6603a113e41b4d34e47a5183";
+        const SECURITY_KEY = "$2b$10$w6hL4N2XkR6.Z9Z7p9v3f.K9p1qA4mG5N6b7c8d9e0f1a2b3c4d5e"; 
+
+        const modeMeta = {
+            overall: { name: "Overall ??", icon: "fa-globe" },
+            sword: { name: "Sword ??", icon: "fa-crosshairs" },
+            nethop: { name: "NethOP ??", icon: "fa-shield-halved" },
+            diasmp: { name: "Dia-SMP ??", icon: "fa-gem" },
+            lifesteal: { name: "Lifesteal ??", icon: "fa-heart-pulse" },
+            smp: { name: "SMP ???", icon: "fa-compass" },
+            vanilla: { name: "Vanilla ??", icon: "fa-cube" },
+            pot: { name: "Pot ??", icon: "fa-flask" },
+            axe: { name: "Axe ??", icon: "fa-gavel" },
+            mace: { name: "Mace ??", icon: "fa-gavel" },
+            uhc: { name: "UHC ??", icon: "fa-heart" }
+        };
+
+        const tierStyles = {
+            "HT1": "bg-red-600/20 text-red-400 border-red-500/40 shadow-[0_0_8px_rgba(239,68,68,0.15)]",
+            "LT1": "bg-red-500/10 text-red-300 border-red-400/30",
+            "HT2": "bg-orange-600/20 text-orange-400 border-orange-500/40 shadow-[0_0_8px_rgba(249,115,22,0.15)]",
+            "LT2": "bg-orange-500/10 text-orange-300 border-orange-400/30",
+            "HT3": "bg-yellow-600/20 text-yellow-400 border-yellow-500/40 shadow-[0_0_8px_rgba(234,179,8,0.15)]",
+            "LT3": "bg-yellow-500/10 text-yellow-300 border-yellow-400/30",
+            "HT4": "bg-green-600/20 text-green-400 border-green-500/40 shadow-[0_0_8px_rgba(34,197,94,0.15)]",
+            "LT4": "bg-emerald-500/10 text-emerald-300 border-emerald-400/30",
+            "HT5": "bg-blue-600/20 text-blue-400 border-blue-500/40 shadow-[0_0_8px_rgba(59,130,246,0.15)]",
+            "LT5": "bg-indigo-600/20 text-indigo-300 border-indigo-400/30"
+        };
+
+        const tierWeights = {
+            "HT1": 60, "LT1": 55, "HT2": 50, "LT2": 50, "HT3": 45, "LT3": 40, "HT4": 35, "LT4": 30, "HT5": 25, "LT5": 20
+        };
+        
+        let activeDiscipline = "overall";
+        const bannedPlayers = ["clown pierce", "minemanner", "straight2thepoint", "dylqn", "vboomer"];
+        let isAuthorized = false;
+        
+        let playersState = [
+            { "name": "klyro_gamer", "rating": "Challenger", "points": 110, "region": "EU", "tiers": { "sword": "HT1", "nethop": "LT2" } },
+            { "name": "PlayerOne", "rating": "Challenger", "points": 115, "region": "NA", "tiers": { "sword": "HT1", "nethop": "LT1" } }
+        ];
+
+        async function loadState() {
+            setSyncingState(true);
+            try {
+                const res = await fetch(`${STORAGE_API}/latest`, {
+                    method: 'GET',
+                    headers: { 'X-Master-Key': SECURITY_KEY }
+                });
+                if (res.ok) {
+                    const parsed = await res.json();
+                    if (parsed.record && Array.isArray(parsed.record)) {
+                        playersState = parsed.record;
+                    }
+                }
+            } catch (err) {
+                console.error("Database endpoint latency warning. Running local array parameters.", err);
+            }
+            
+            playersState = playersState.filter(p => p && p.name && !bannedPlayers.includes(p.name.toLowerCase().trim()));
+            playersState.forEach(p => calculateAggregateTotalPoints(p));
+            setSyncingState(false);
+        }
+
+        async function saveState() {
+            setSyncingState(true);
+            try {
+                await fetch(STORAGE_API, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Master-Key': SECURITY_KEY
+                    },
+                    body: JSON.stringify(playersState)
+                });
+            } catch (err) {
+                console.error("Write stream rejection caught on database synchronization:", err);
+            }
+            setSyncingState(false);
+        }
+
+        function setSyncingState(isWorking) {
+            const indicator = document.getElementById("sync-indicator");
+            if (isWorking) {
+                indicator.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin text-[8px]"></i> Synchronizing`;
+                indicator.className = "text-[11px] font-mono bg-blue-950/50 text-blue-400 border border-blue-900/40 px-3 py-1 rounded-full flex items-center gap-1.5";
+            } else {
+                indicator.innerHTML = `<i class="fa-solid fa-cloud text-[8px] text-emerald-400"></i> Cloud Synced`;
+                indicator.className = "text-[11px] font-mono bg-emerald-950/30 text-emerald-400 border border-emerald-900/20 px-3 py-1 rounded-full flex items-center gap-1.5";
+            }
+        }
+
+        window.addEventListener("DOMContentLoaded", async () => {
+            await loadState();
+            renderTabs();
+            renderLeaderboard();
+            populateAdminDropdown();
+            updateScorePreview('edit');
+            updateScorePreview('add');
+        });
+
+        function calculateAggregateTotalPoints(player) {
+            let runningTotal = 0;
+            if (!player.tiers) player.tiers = {};
+            Object.keys(player.tiers).forEach(modeKey => {
+                const placementTier = player.tiers[modeKey];
+                if (tierWeights[placementTier] !== undefined) {
+                    runningTotal += tierWeights[placementTier];
+                }
+            });
+            player.points = runningTotal;
+        }
+
+        function updateScorePreview(panelMode) {
+            if (panelMode === 'edit') {
+                const activeSelectedTier = document.getElementById("admin-tier-select").value;
+                document.getElementById("admin-player-score").value = tierWeights[activeSelectedTier] || 0;
+            } else if (panelMode === 'add') {
+                const activeSelectedTier = document.getElementById("add-player-tier").value;
+                document.getElementById("add-player-points-preview").value = tierWeights[activeSelectedTier] || 0;
+            }
+        }
+
+        function renderTabs() {
+            const container = document.getElementById("gamemode-tab-bar");
+            container.innerHTML = "";
+            Object.keys(modeMeta).forEach(key => {
+                const tab = modeMeta[key];
+                const isActive = activeDiscipline === key;
+                const element = document.createElement("button");
+                element.onclick = () => {
+                    activeDiscipline = key;
+                    renderTabs();
+                    renderLeaderboard();
+                };
+                element.className = isActive 
+                    ? "w-28 h-12 bg-[#070d1e] text-white border border-b-0 border-blue-900/60 rounded-t-2xl flex flex-col items-center justify-center relative px-2 pt-1 group transition-all shrink-0"
+                    : "w-28 h-12 text-gray-500 hover:bg-[#0b132b] hover:text-gray-300 border border-b-0 border-blue-950/40 rounded-t-2xl flex flex-col items-center justify-center px-2 pt-1 transition-all shrink-0 cursor-pointer";
+                element.innerHTML = `
+                    <span class="text-xs font-bold font-sans flex items-center gap-1.5">
+                        <i class="fa-solid ${tab.icon} text-[10px] ${isActive ? 'text-blue-500' : ''}"></i> ${tab.name}
+                    </span>
+                    ${isActive ? '<span class="absolute bottom-0 left-0 w-full h-[2px] bg-blue-500 shadow-[0_0_10px_#2563eb]"></span>' : ''}
+                `;
+                container.appendChild(element);
+            });
+        }
+
+        function renderLeaderboard() {
+            const container = document.getElementById("leaderboard-rows-wrapper");
+            container.innerHTML = "";
+            document.getElementById("current-discipline-title").innerHTML = `${modeMeta[activeDiscipline].name} Rankings Index`;
+            const query = document.getElementById("player-search").value.toLowerCase().trim();
+
+            let visibleData = playersState.filter(p => {
+                if (!p || !p.name) return false;
+                if (bannedPlayers.includes(p.name.toLowerCase().trim())) return false;
+                if (query && !p.name.toLowerCase().includes(query)) return false;
+                if (activeDiscipline !== "overall" && (!p.tiers || !p.tiers[activeDiscipline])) return false;
+                return true;
+            });
+
+            if (activeDiscipline !== "overall") {
+                const order = ["HT1","LT1","HT2","LT2","HT3","LT3","HT4","LT4","HT5","LT5"];
+                visibleData.sort((a,b) => {
+                    const diff = order.indexOf(a.tiers[activeDiscipline]) - order.indexOf(b.tiers[activeDiscipline]);
+                    if (diff !== 0) return diff;
+                    return b.points - a.points; 
+                });
+            } else {
+                visibleData.sort((a,b) => b.points - a.points);
+            }
+
+            if (visibleData.length === 0) {
+                container.innerHTML = `
+                    <div class="p-12 text-center rounded-2xl border border-dashed border-blue-950/60 bg-[#040814]/40">
+                        <i class="fa-solid fa-users-slash text-2xl text-gray-600 mb-3 block"></i>
+                        <div class="text-sm text-gray-400 font-medium">No records found matching search queries.</div>
+                    </div>`;
+                return;
+            }
+
+            visibleData.forEach((player, index) => {
+                const row = document.createElement("div");
+                row.className = "w-full min-h-20 bg-[#0b132b]/30 hover:bg-[#0f1a3e] border border-blue-950/50 hover:border-blue-500/20 rounded-2xl flex items-center p-4 transition-all duration-200 gap-2 card-glow transform hover:-translate-y-0.5";
+                let tierLayout = "";
+                let pointsSubtitleText = `${player.points} Total Pts`;
+
+                if (activeDiscipline === "overall") {
+                    tierLayout = `<div class="flex flex-wrap gap-1.5 justify-end md:justify-center items-center w-full">`;
+                    Object.keys(player.tiers || {}).forEach(k => {
+                        const tVal = player.tiers[k];
+                        const style = tierStyles[tVal] || "bg-slate-800 text-gray-400 border-slate-700";
+                        tierLayout += `<span class="px-2 py-0.5 text-[10px] font-extrabold rounded border ${style} uppercase tracking-tight">${tVal}</span>`;
+                    });
+                    tierLayout += `</div>`;
+                } else {
+                    const singleTier = player.tiers[activeDiscipline] || "N/A";
+                    const style = tierStyles[singleTier] || "bg-slate-800 text-gray-400 border-slate-700";
+                    pointsSubtitleText = `${tierWeights[singleTier]} Mode Pts / ${player.points} Total`;
+                    tierLayout = `<div class="flex justify-end md:justify-center w-full"><span class="px-4 py-1 text-sm font-black rounded-xl border ${style} uppercase tracking-wider font-mono">${singleTier}</span></div>`;
+                }
+
+                row.innerHTML = `
+                    <div class="grid grid-cols-12 items-center w-full gap-2">
+                        <div class="col-span-1 text-xl font-black italic text-slate-700 font-mono pl-1">${index + 1}.</div>
+                        <div class="col-span-5 md:col-span-4 flex items-center space-x-3 min-w-0">
+                            <div class="h-10 w-10 rounded-xl bg-gradient-to-b from-blue-950/50 to-slate-900/50 border border-blue-900/40 flex items-center justify-center shrink-0 shadow-inner">
+                                <i class="fa-solid fa-user text-blue-400/80 text-sm"></i>
+                            </div>
+                            <div class="truncate">
+                                <h3 class="text-base font-bold text-slate-200 truncate">${player.name}</h3>
+                                <p class="text-xs text-gray-500 font-medium">${player.rating || 'Challenger'} <span class="text-blue-400 font-bold">(${pointsSubtitleText})</span></p>
+                            </div>
+                        </div>
+                        <div class="col-span-3 hidden md:flex justify-center">
+                            <span class="px-2.5 py-1 text-xs font-bold bg-[#040814] border border-blue-950 rounded-lg text-gray-400">${player.region || 'NA'}</span>
+                        </div>
+                        <div class="col-span-6 md:col-span-4 flex items-center justify-end">${tierLayout}</div>
+                    </div>`;
+                container.appendChild(row);
+            });
+        }
+
+        function populateAdminDropdown() {
+            const select = document.getElementById("admin-player-select");
+            if (playersState.length === 0) {
+                select.innerHTML = `<option value="">No Active Matrix Profiles Loaded</option>`;
+                return;
+            }
+            select.innerHTML = playersState.map(p => `<option value="${p.name}">${p.name}</option>`).join("");
+        }
+
+        function toggleConsole() {
+            const modal = document.getElementById("admin-modal");
+            modal.classList.toggle("hidden");
+            if (!isAuthorized) {
+                document.getElementById("console-auth-section").classList.remove("hidden");
+                document.getElementById("console-controls-section").classList.add("hidden");
+            }
+        }
+
+        function authenticateConsole() {
+            const token = document.getElementById("console-passkey").value;
+            const feedback = document.getElementById("console-feedback");
+            
+            if (token === "admin123") {
+                isAuthorized = true;
+                document.getElementById("console-auth-section").classList.add("hidden");
+                document.getElementById("console-controls-section").classList.remove("hidden");
+                feedback.classList.add("hidden");
+                loadAdminSelectProfile();
+            } else {
+                feedback.innerText = "Invalid Security Access Passkey Override Token";
+                feedback.className = "text-center text-xs font-bold text-red-500 block";
+            }
+        }
+
+        function switchAdminSubTab(mode) {
+            const btnEdit = document.getElementById("tab-edit-mode");
+            const btnAdd = document.getElementById("tab-add-mode");
+            const secEdit = document.getElementById("admin-sub-edit");
+            const secAdd = document.getElementById("admin-sub-add");
+            if (mode === 'edit') {
+                btnEdit.className = "px-4 py-2 border-b-2 border-blue-500 text-white";
+                btnAdd.className = "px-4 py-2 border-b-2 border-transparent text-gray-500 hover:text-gray-300";
+                secEdit.classList.remove("hidden");
+                secAdd.classList.add("hidden");
+                loadAdminSelectProfile();
+            } else {
+                btnAdd.className = "px-4 py-2 border-b-2 border-blue-500 text-white";
+                btnEdit.className = "px-4 py-2 border-b-2 border-transparent text-gray-500 hover:text-gray-300";
+                secAdd.classList.remove("hidden");
+                secEdit.classList.add("hidden");
+            }
+        }
+
+        function loadAdminSelectProfile() {
+            const targetName = document.getElementById("admin-player-select").value;
+            if(!targetName) return;
+            const profile = playersState.find(p => p.name === targetName);
+            if (profile) {
+                document.getElementById("admin-player-region").value = profile.region || "NA";
+                const disc = document.getElementById("admin-discipline-select").value;
+                document.getElementById("admin-tier-select").value = (profile.tiers && profile.tiers[disc]) ? profile.tiers[disc] : "HT1";
+                updateScorePreview('edit');
+            }
+        }
+
+        document.getElementById("admin-player-select").onchange = loadAdminSelectProfile;
+
+        async function updatePlayerTierData() {
+            const targetName = document.getElementById("admin-player-select").value;
+            if(!targetName) return;
+            
+            const discipline = document.getElementById("admin-discipline-select").value;
+            const newTier = document.getElementById("admin-tier-select").value;
+            const regionVal = document.getElementById("admin-player-region").value;
+
+            const profileIndex = playersState.findIndex(p => p.name === targetName);
+            if (profileIndex > -1) {
+                playersState[profileIndex].region = regionVal;
+                if(!playersState[profileIndex].tiers) playersState[profileIndex].tiers = {};
+                playersState[profileIndex].tiers[discipline] = newTier;
+                calculateAggregateTotalPoints(playersState[profileIndex]);
+                
+                renderLeaderboard();
+                await saveState();
+            }
+        }
+
+        async function deletePlayerProfile() {
+            const targetName = document.getElementById("admin-player-select").value;
+            if(!targetName) return;
+
+            if (confirm(`Delete user: "${targetName}"?`)) {
+                playersState = playersState.filter(p => p.name !== targetName);
+                
+                renderLeaderboard();
+                populateAdminDropdown();
+                loadAdminSelectProfile();
+                await saveState();
+            }
+        }
+
+        async function addNewPlayerProfile() {
+            const name = document.getElementById("add-player-name").value.trim();
+            const rating = document.getElementById("add-player-rating").value.trim() || "Challenger";
+            const region = document.getElementById("add-player-region").value;
+            const initialDisc = document.getElementById("add-player-discipline").value;
+            const initialTier = document.getElementById("add-player-tier").value;
+
+            if (!name) return;
+
+            const existingIndex = playersState.findIndex(p => p.name.toLowerCase() === name.toLowerCase());
+            
+            if (existingIndex > -1) {
+                playersState[existingIndex].tiers[initialDisc] = initialTier;
+                calculateAggregateTotalPoints(playersState[existingIndex]);
+            } else {
+                const newPlayer = { name, rating, points: 0, region, tiers: {} };
+                newPlayer.tiers[initialDisc] = initialTier;
+                calculateAggregateTotalPoints(newPlayer);
+                playersState.push(newPlayer);
+            }
+            
+            renderLeaderboard();
+            populateAdminDropdown();
+            await saveState();
+
+            document.getElementById("add-player-name").value = "";
+            document.getElementById("add-player-rating").value = "";
+        }
+    </script>
+</body>
+</html>
